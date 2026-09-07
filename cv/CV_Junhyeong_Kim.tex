@@ -1,0 +1,328 @@
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{kotex}
+\usepackage{lmodern}
+\usepackage[a4paper,top=16mm,bottom=16mm,left=18mm,right=18mm]{geometry}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{enumitem}
+\usepackage{tabularx}
+\usepackage{titlesec}
+\usepackage{needspace}
+\usepackage[resetlabels]{multibib}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+
+\definecolor{cvNavy}{HTML}{000000}
+\definecolor{cvGray}{HTML}{000000}
+\definecolor{cvRule}{HTML}{000000}
+\definecolor{cvLinkBlue}{HTML}{0066CC}
+
+\hypersetup{
+  colorlinks=true,
+  urlcolor=cvLinkBlue,
+  citecolor=cvLinkBlue,
+  linkcolor=cvNavy,
+  bookmarksopen=true,
+  bookmarksnumbered=false,
+  bookmarksdepth=1,
+  pdfauthor={Junhyeong Kim},
+  pdftitle={Curriculum Vitae - Junhyeong Kim}
+}
+\urlstyle{same}
+
+% Clickable DOI helper for bibliography styles that use \doi{...}.
+\providecommand{\doi}[1]{\href{https://doi.org/#1}{doi:\ #1}}
+
+% --------------------------------------------------------------------------
+% Automatically count active BibTeX entries in each bibliography database.
+% An entry is counted when a line begins with @<entrytype>{ or @<entrytype>(.
+% BibTeX directives such as @comment, @string, and @preamble are excluded.
+% Recompiling LaTeX after editing a .bib file updates the displayed counts.
+% --------------------------------------------------------------------------
+\ExplSyntaxOn
+\int_new:N \g_cv_journal_count_int
+\int_new:N \g_cv_conference_count_int
+\int_new:N \g_cv_patent_count_int
+\ior_new:N \g_cv_bib_count_ior
+
+\cs_new_protected:Npn \cv_count_bib_entries:nn #1#2
+  {
+    \int_gzero:c { g_cv_#2_count_int }
+    \ior_open:Nn \g_cv_bib_count_ior {#1}
+    \ior_map_inline:Nn \g_cv_bib_count_ior
+      {
+        \regex_match:nnT
+          { \A \s* @ \s* [A-Za-z]+ \s* [\{\(] }
+          {##1}
+          {
+            \regex_match:nnF
+              { \A \s* @ \s* (?:comment|string|preamble) \b }
+              {##1}
+              { \int_gincr:c { g_cv_#2_count_int } }
+          }
+      }
+    \ior_close:N \g_cv_bib_count_ior
+  }
+
+\cv_count_bib_entries:nn {publications_jnl.bib} {journal}
+\cv_count_bib_entries:nn {publications_conf.bib} {conference}
+\cv_count_bib_entries:nn {publications_pat.bib} {patent}
+
+\NewExpandableDocumentCommand{\JournalPublicationCount}{}
+  {\int_use:N \g_cv_journal_count_int}
+\NewExpandableDocumentCommand{\ConferencePublicationCount}{}
+  {\int_use:N \g_cv_conference_count_int}
+\NewExpandableDocumentCommand{\PatentPublicationCount}{}
+  {\int_use:N \g_cv_patent_count_int}
+\ExplSyntaxOff
+
+% Small, muted count displayed beside each bibliography section title.
+\DeclareRobustCommand{\pubcount}[1]{%
+  \texorpdfstring{\hspace{0.35em}{\normalfont\footnotesize\color{cvGray}(#1)}}{ (#1)}%
+}
+
+\newcites{journal}{Journal Publications\pubcount{\JournalPublicationCount}}
+\newcites{conference}{Conference Publications\pubcount{\ConferencePublicationCount}}
+\newcites{patent}{U.S. Patents and Patent Applications\pubcount{\PatentPublicationCount}}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\setlist[itemize]{
+  leftmargin=1.25em,
+  label=\textcolor{cvNavy}{\small\textbullet},
+  itemsep=0.05em,
+  parsep=0pt,
+  topsep=0.1em,
+  partopsep=0pt
+}
+
+% Define the section rule separately to avoid nested optional-argument parsing.
+\newcommand{\cvSectionRule}{\titlerule[0.8pt]}
+\titleformat{\section}
+  {\fontsize{13pt}{15pt}\selectfont\bfseries\color{cvNavy}}
+  {}{0pt}{}
+  [\vspace{0.1em}\color{cvRule}\cvSectionRule]
+\titlespacing*{\section}{0pt}{1.15em}{0.6em}
+
+% Unnumbered CV section heading with a PDF bookmark.
+\newcommand{\cvSection}[1]{%
+  \phantomsection%
+  \section*{#1}%
+  \addcontentsline{toc}{section}{#1}%
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancyfoot[L]{\footnotesize\color{cvGray}Last updated: \today}
+\fancyfoot[C]{\footnotesize\color{cvGray}Junhyeong Kim \enspace|\enspace Curriculum Vitae}
+\fancyfoot[R]{\footnotesize\color{cvGray}\thepage}
+
+% --------------------------------------------------------------------------
+% Personal details: replace the placeholder values below.
+% --------------------------------------------------------------------------
+\newcommand{\cvName}{Junhyeong Kim, Ph.D.}
+\newcommand{\cvTagline}{Principal Researcher \textbar{} 6G Wireless Access System Research Section, ETRI}
+\newcommand{\cvEmail}{jhkim41jf@etri.re.kr}
+\newcommand{\cvMobile}{+82-10-4818-8166}
+\newcommand{\cvOffice}{+82-42-860-6239}
+\newcommand{\cvAddress}{218 Gajeong-ro, Yuseong-gu, Daejeon 34129, Republic of Korea}
+
+\newcommand{\cvEntry}[4]{%
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}X>{\raggedleft\arraybackslash}p{0.24\textwidth}@{}}
+    \textbf{#2} & \textcolor{cvGray}{#1} \\
+    \textit{#3} & {}
+  \end{tabularx}
+  #4
+  \vspace{1.0em}
+}
+
+\newcommand{\cvProject}[4]{%
+  \Needspace{5\baselineskip}%
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}X>{\raggedleft\arraybackslash}p{0.24\textwidth}@{}}
+    \textbf{#1} & \textcolor{cvGray}{#2}
+  \end{tabularx}
+  \textit{#3}\par
+  \if\relax\detokenize{#4}\relax\else #4\fi
+  \par\addvspace{1.0em}
+}
+
+\newcommand{\cvAward}[2]{%
+  \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lr@{}}
+    #1 & \textcolor{cvGray}{#2}
+  \end{tabular*}\par
+}
+
+% Compact IEEE-style bibliography spacing for a CV.
+\makeatletter
+\renewenvironment{thebibliography}[1]
+  {\cvSection{\refname}%
+   \small
+   \list{\@biblabel{\@arabic\c@enumiv}}%
+     {\settowidth\labelwidth{\@biblabel{#1}}%
+      \leftmargin\labelwidth
+      \advance\leftmargin\labelsep
+      \usecounter{enumiv}
+      \setlength{\itemsep}{0.55em}
+      \setlength{\parsep}{0pt}
+      \setlength{\topsep}{0pt}}%
+   \sloppy
+   \interlinepenalty10000
+   \clubpenalty4000
+   \@clubpenalty\clubpenalty
+   \widowpenalty4000}
+  {\endlist}
+\makeatother
+
+\begin{document}
+\thispagestyle{fancy}
+
+\begin{center}
+  {\fontsize{22}{26}\selectfont\bfseries\color{cvNavy}\cvName}\\[1.0em]
+  {\large\color{cvGray}\cvTagline}\\[0.6em]
+  \small
+  \href{mailto:\cvEmail}{\cvEmail}
+  \enspace\textcolor{cvRule}{\textbullet}\enspace
+  Mobile: \cvMobile
+  \enspace\textcolor{cvRule}{\textbullet}\enspace
+  Office: \cvOffice
+  \enspace\textcolor{cvRule}{\textbullet}\enspace
+  \href{https://scholar.google.com/citations?user=zPgjnxMAAAAJ\&hl=ko}{Google Scholar}\\[0.25em]
+  \cvAddress
+\end{center}
+
+\vspace{-0.25em}
+
+\cvSection{Research Profile}
+Principal Researcher in the 6G Wireless Access System Research Section at ETRI and Assistant Professor in the Major in Information and Communication Engineering at ETRI School, UST. Since joining ETRI in 2011, contributed to 3GPP and IEEE standardization and developed mmWave communication systems for high-speed trains and 5G NR vehicular communications. Research interests include 5G/6G wireless access, wireless standardization, mmWave systems, high-mobility communications, and V2X.
+
+\cvSection{Professional Experience}
+\cvEntry
+  {Feb. 2011--Present}
+  {Principal Researcher}
+  {6G Wireless Access System Research Section, Electronics and Telecommunications Research Institute (ETRI) --- Daejeon 34129, Republic of Korea}
+  {\begin{itemize}
+     \item Contributed to 3GPP standardization and IEEE standardization.
+     \item Developed mmWave-band systems for high-speed train communications.
+     \item Developed an mmWave-band 5G NR system for vehicular communications.
+   \end{itemize}}
+
+\cvEntry
+  {Sep. 2023--Present}
+  {Assistant Professor}
+  {Major in Information and Communication Engineering, ETRI School, University of Science and Technology (UST) --- Daejeon 34129, Republic of Korea}
+
+\cvSection{Teaching Experience}
+\cvEntry
+  {Spring 2026}
+  {Advanced Information and Communications System}
+  {Co-Instructor, ETRI School, University of Science and Technology (UST)}
+
+\cvSection{Education}
+\cvEntry
+  {Mar. 2016--Feb. 2020}
+  {Ph.D. in Electrical Engineering}
+  {Korea Advanced Institute of Science and Technology (KAIST) --- Daejeon, Republic of Korea}
+  {\begin{itemize}
+     \item Advisor: Prof. Youngnam Han
+     \item Thesis: \textit{Communication Schemes for Platooning in V2X Networks}
+     \item GPA: 3.86/4.3
+   \end{itemize}}
+
+\cvEntry
+  {Feb. 2009--Feb. 2011}
+  {M.S. in Electrical Engineering}
+  {Korea Advanced Institute of Science and Technology (KAIST) --- Daejeon, Republic of Korea}
+  {\begin{itemize}
+     \item Advisor: Prof. Youngnam Han
+     \item Thesis: \textit{Network Coding Based Relay Selection in Two-Source DAS with Interference}
+     \item GPA: 3.82/4.3
+   \end{itemize}}
+
+\cvEntry
+  {Aug. 2004--Jul. 2008}
+  {B.E. in Electronic Engineering}
+  {Tsinghua University --- Beijing, China}
+  {\begin{itemize}
+     \item Advisor: Chi Fang
+     \item Thesis: \textit{Static Image Based Face Pose Estimation}
+     \item GPA: 71/100
+   \end{itemize}}
+
+\newpage
+\cvSection{Selected Project Experience}
+\cvProject
+  {6G-WISECOM}
+  {Sep. 2024--Aug. 2027}
+  {Development of wireless technology for integrated sensing and communication}
+  {\begin{itemize}
+     \item Role: Principal Investigator (PI) and researcher
+     \item Consortium: ETRI (Korea lead), KAIST, Dankook University, University of Oulu (Finland lead)
+     \item Project website: \href{https://www.6gflagship.com/6g-wisecom/}{www.6gflagship.com/6g-wisecom}
+   \end{itemize}}
+
+\cvProject
+  {5G-MOBIX}
+  {Nov. 2019--Oct. 2022}
+  {5G for Cooperative \& Connected Automated Mobility on X-Border Corridors}
+  {\begin{itemize}
+     \item Role: Researcher
+     \item Consortium: 60 partners from 13 countries, including KATECH (Korea lead), ETRI, Ericsson, Nokia, and Ford Otosan
+     \item Project website: \href{https://www.5g-mobix.com/}{www.5g-mobix.com}
+   \end{itemize}}
+
+\cvProject
+  {5G-ALLSTAR}
+  {Jun. 2018--May 2021}
+  {5G AgiLe and fLexible integration of SaTellite And cellulaR}
+  {\begin{itemize}
+     \item Role: Researcher (WP2 leader)
+     \item Consortium: ETRI (Korea lead), KT SAT, KATECH, SK Telecom, Snet ICT, CEA-Leti (EU lead), Thales Alenia Space, Grenoble École de Management, Fraunhofer, CRAT
+     \item Project website: \href{https://5g-allstar.eu/}{5g-allstar.eu}
+   \end{itemize}}
+
+\cvProject
+  {5GCHAMPION}
+  {Jun. 2016--May 2019}
+  {5G Communication with a Heterogeneous, Agile Mobile network in the Pyeongchang wInter Olympic competitioN}
+  {\begin{itemize}
+     \item Role: Researcher
+     \item Project website: \href{http://www.5g-champion.eu/}{www.5g-champion.eu}
+   \end{itemize}}
+
+\cvProject
+  {Mobile Hotspot Network (MHN)}
+  {Mar. 2012--Feb. 2018}
+  {mmWave-band communications for high-speed mobile environments}
+  {\begin{itemize}
+     \item Role: Researcher
+  \end{itemize}}
+
+\cvSection{Honors and Awards}
+\cvAward{Best Paper Award, ETRI Journal (co-author)}{2021}
+\cvAward{Student Best Paper Award, ISAPE 2021 (co-author)}{Dec. 2021}
+\cvAward{Best Paper Award, IEEE ComComAp 2021 (co-author)}{Nov. 2021}
+\cvAward{Best Paper Award, ETRI Journal (co-author)}{2019}
+\cvAward{Haedong Young Engineer Award}{Dec. 2019}
+\cvAward{Excellent Paper Award, ICTC 2016 (co-author)}{Oct. 2016}
+\cvAward{Best Paper Award, ICTC 2013 (first author)}{Oct. 2013}
+
+\newpage
+\nocitejournal{*}
+\bibliographystylejournal{IEEEtran_CV}
+\bibliographyjournal{IEEEabrv,publications_jnl}
+
+\newpage
+\nociteconference{*}
+\bibliographystyleconference{IEEEtran_CV}
+\bibliographyconference{IEEEabrv,publications_conf}
+
+\newpage
+\nocitepatent{*}
+\bibliographystylepatent{IEEEtran_CV}
+\bibliographypatent{IEEEabrv,publications_pat}
+
+\end{document}
